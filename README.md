@@ -390,16 +390,6 @@ WikidAI is an **educational project** - contributions are welcome!
 
 ## 📖 Learn More
 
-### Documentation
-
-| Document | Purpose |
-|----------|---------|
-| [`CLAUDE.md`](CLAUDE.md) | Complete architecture and design decisions |
-| [`PoC_plan.md`](PoC_plan.md) | Phase 1 implementation plan (completed) |
-| [`MVP_plan.md`](MVP_plan.md) | Phase 2 roadmap (current) |
-| [`EPR_plan.md`](EPR_plan.md) | Phase 3 production plan |
-| [`AGILE_ROADMAP.md`](AGILE_ROADMAP.md) | Full project timeline and milestones |
-
 ### Related Resources
 
 - [Gemini API Documentation](https://ai.google.dev/docs)
@@ -446,13 +436,10 @@ This project is licensed under the **WikidAI LICENSE (WDL)** - see the [LICENSE]
 
 - **Issues**: [GitHub Issues](https://github.com/yourusername/wikidai/issues)
 - **Discussions**: [GitHub Discussions](https://github.com/yourusername/wikidai/discussions)
-- **Conference**: [itWikiCon 2025 - Catania](https://meta.wikimedia.org/wiki/ItWikiCon_2025)
 
 ---
 
 <div align="center">
-
-**Made with ❤️ for the Wikimedia community**
 
 [⬆ Back to Top](#-wikidai)
 
