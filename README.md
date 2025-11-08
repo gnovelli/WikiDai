@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🌍 WikidAI
+# WikidAI
 
 ### **AI-Powered Knowledge Assistant with Transparent Multi-Agent Orchestration**
 
