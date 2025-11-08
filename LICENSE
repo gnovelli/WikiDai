@@ -1,0 +1,105 @@
+WIKIDAI LICENSE (WDL)
+Copyright © 2025 Giovanni Novelli Ph.D.
+
+This license governs the use, distribution, and modification of **WikidAI** ("the Software"). By using, copying, modifying, or distributing the Software, you agree to the terms below.
+
+---
+
+### 1. OWNERSHIP
+
+The Software, including all source code, binaries, data models, system prompts, and educational materials, is the exclusive intellectual property of Giovanni Novelli Ph.D. All rights not expressly granted are reserved.
+
+---
+
+### 2. PURPOSE AND NATURE
+
+WikidAI is an **educational AI orchestration platform** demonstrating transparent reasoning and responsible AI design. Its use is permitted primarily for **learning, research, and non-commercial experimentation**.
+
+---
+
+### 3. PERMITTED USE
+
+**a. Personal, Educational, and Research Use**
+Use, study, and modify the Software for personal learning or academic research are freely allowed, provided attribution to the author is maintained.
+
+**b. Use as Framework or Tool**
+You may build or test derivative agents, prompts, or workflows using the WikidAI architecture (including multi-agent orchestration, SPARQL generation, and educational UI) for educational or prototype purposes.
+
+**c. Institutional Use**
+Universities, research centers, and cultural or open-data institutions may deploy the Software for teaching, outreach, or demonstrations with visible credit to Giovanni Novelli Ph.D.
+
+---
+
+### 4. RESTRICTED USE
+
+**a. Commercial and Public Integration**
+Commercial redistribution, hosting as a paid service, or integration into any monetized system requires prior **written authorization** from Giovanni Novelli Ph.D.
+
+**b. Derivative Platforms**
+Rebranding, repackaging, or derivative projects that retain core WikidAI components (multi-agent orchestrator, Gemini-based reasoning, or SPARQL pipelines) must obtain written permission.
+
+**c. Prohibited Entities**
+Large-scale corporate entities (e.g., Google LLC, Meta Platforms Inc., ByteDance Ltd., or their subsidiaries) must obtain explicit written consent prior to any use, even for internal evaluation.
+
+---
+
+### 5. MODULE AND PROMPT ECOSYSTEM
+
+**a. Core System**
+WikidAI Core (backend orchestration, prompt logic, UI educational features) may not be redistributed or sold. Use in other AI orchestration products requires explicit licensing.
+
+**b. Community Modules**
+Third-party agents or extensions authored independently may be licensed under any open license chosen by their creators, provided attribution and compatibility with WDL terms.
+
+**c. Prompt and Knowledge Assets**
+All provided prompts (system instructions, SPARQL examples, workflow patterns) are integral to the educational purpose of WikidAI and remain under copyright. Adaptation is permitted for research, but public redistribution of modified prompt sets requires approval.
+
+---
+
+### 6. ATTRIBUTION
+
+Any permitted use or distribution must:
+
+* Retain this license text in full;
+* Attribute **Giovanni Novelli Ph.D.** as the original author;
+* Include a visible link to the project site: [https://www.novelli.me/wikidai/](https://www.novelli.me/wikidai/).
+
+---
+
+### 7. CONTRIBUTIONS
+
+Contributions to the WikidAI core imply transfer of joint copyright to Giovanni Novelli Ph.D., with moral attribution retained by the contributor. Independent modules or prompts may remain under the contributor's copyright.
+
+---
+
+### 8. WARRANTY DISCLAIMER
+
+The Software is provided **"as is"**, without warranties of any kind. The author shall not be liable for damages or loss arising from use or misuse of the Software.
+
+---
+
+### 9. TERMINATION
+
+Any violation of these terms immediately terminates the rights granted under this license. Upon termination, all copies and derived materials must be destroyed.
+
+---
+
+### 10. GOVERNING LAW
+
+This license is governed by Italian law. Jurisdiction: **Catania, Italy.**
+
+---
+
+### 11. VERSIONING AND FUTURE LICENSES
+
+This license applies to all versions of WikidAI released from **2025-11-08** onward. Future versions may adopt updated terms or transition to a public open-data educational license.
+
+---
+
+### 12. CONTACT
+
+**Author:** Giovanni Novelli Ph.D.
+**Email:** [giovanni@novelli.me](mailto:giovanni@novelli.me)
+**GitHub:** [https://github.com/gnovelli](https://github.com/gnovelli)
+**Website:** [https://www.novelli.me](https://www.novelli.me)
+**Project Page:** [https://www.novelli.me/wikidai/](https://www.novelli.me/wikidai/)
