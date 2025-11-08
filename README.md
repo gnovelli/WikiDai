@@ -27,7 +27,7 @@ WikidAI is an **educational proof-of-concept** that demonstrates how Large Langu
 - ⛅ **Retrieves** real-time weather data
 - 🔄 **Chains** multiple queries together to answer complex questions
 
-Built for the **itWikiCon 2025** in Catania, this project showcases the power of transparent AI orchestration with **Gemini 2.5 Pro**.
+I have built it in a few hours for a short lightning talk for **itWikiCon 2025** on November 8, 2025 in Catania. This Proof of Concept showcases the power of transparent AI orchestration with **Gemini 2.5 Pro**.
 
 ## 🚀 Quick Start
 
