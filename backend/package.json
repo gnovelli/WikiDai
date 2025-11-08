@@ -1,0 +1,35 @@
+{
+  "name": "wikidai-backend-poc",
+  "version": "0.1.0",
+  "description": "WikidAI PoC - Multi-agent orchestration backend",
+  "main": "dist/index.js",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "test": "tsx src/test-queries.ts"
+  },
+  "keywords": [
+    "ai",
+    "multi-agent",
+    "gemini",
+    "wikidata"
+  ],
+  "author": "WikidAI Team",
+  "license": "MIT",
+  "dependencies": {
+    "@google/generative-ai": "^0.21.0",
+    "axios": "^1.7.0",
+    "dotenv": "^16.4.0",
+    "express": "^4.19.0",
+    "redis": "^4.7.0",
+    "sparqljs": "^3.7.0"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.21",
+    "@types/node": "^20.14.0",
+    "@types/sparqljs": "^3.1.12",
+    "tsx": "^4.16.0",
+    "typescript": "^5.5.0"
+  }
+}

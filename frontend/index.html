@@ -1,0 +1,1292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <title>WikidAI - Educational Multi-Agent Chat</title>
+    <!-- Leaflet CSS for OpenStreetMap -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+          integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+          crossorigin=""/>
+    <!-- Leaflet Fullscreen Plugin CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.fullscreen@2.4.0/Control.FullScreen.css" />
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+            integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+            crossorigin=""></script>
+    <!-- Leaflet Fullscreen Plugin -->
+    <script src="https://unpkg.com/leaflet.fullscreen@2.4.0/Control.FullScreen.js"></script>
+    <!-- Leaflet EasyPrint Plugin for PNG export -->
+    <script src="https://unpkg.com/leaflet-easyprint@2.1.9/dist/bundle.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #667eea;
+            --primary-dark: #5568d3;
+            --secondary: #764ba2;
+            --user-msg: #667eea;
+            --assistant-msg: #f0f0f0;
+            --sidebar-bg: #2d2d2d;
+            --sidebar-text: #e0e0e0;
+            --border: #e0e0e0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            margin: 0;
+            background: #f5f5f5;
+            width: 100%;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            width: 100%;
+        }
+
+        /* Header */
+        header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            padding: 16px 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            z-index: 100;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header-title h1 {
+            font-size: 20px;
+            margin-bottom: 4px;
+        }
+
+        .header-title p {
+            font-size: 12px;
+            opacity: 0.9;
+        }
+
+        .conference-ref {
+            font-size: 11px;
+            opacity: 0.85;
+            margin-top: 4px;
+        }
+
+        .conference-ref a {
+            color: white;
+            text-decoration: underline;
+        }
+
+        .new-chat-btn {
+            padding: 8px 16px;
+            background: rgba(255,255,255,0.2);
+            border: 1px solid rgba(255,255,255,0.3);
+            color: white;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.2s;
+        }
+
+        .new-chat-btn:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        /* Main Layout */
+        .main-container {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+            max-width: 1400px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 260px;
+            background: var(--sidebar-bg);
+            color: var(--sidebar-text);
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid #1a1a1a;
+        }
+
+        .sidebar-header {
+            padding: 16px;
+            border-bottom: 1px solid #3d3d3d;
+        }
+
+        .sidebar-header h3 {
+            font-size: 14px;
+            opacity: 0.7;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .conversation-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 8px;
+        }
+
+        .conversation-item {
+            padding: 12px;
+            margin-bottom: 4px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.2s;
+            position: relative;
+        }
+
+        .conversation-item:hover {
+            background: #3d3d3d;
+        }
+
+        .conversation-item.active {
+            background: #4d4d4d;
+        }
+
+        .conv-title {
+            font-size: 14px;
+            margin-bottom: 4px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .conv-meta {
+            font-size: 11px;
+            opacity: 0.6;
+        }
+
+        /* Chat Area */
+        .chat-container {
+            display: flex;
+            flex-direction: column;
+            background: white;
+            min-height: calc(100vh - 60px); /* Subtract header height */
+            width: 100%;
+        }
+
+        .messages-container {
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            padding-bottom: 100px; /* Space for sticky input */
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .message {
+            display: flex;
+            flex-direction: column;
+            max-width: 85%;
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .message.user {
+            align-self: flex-end;
+        }
+
+        .message.assistant {
+            align-self: flex-start;
+        }
+
+        .message-bubble {
+            padding: 12px 16px;
+            border-radius: 18px;
+            position: relative;
+        }
+
+        .message.user .message-bubble {
+            background: var(--user-msg);
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+
+        .message.assistant .message-bubble {
+            background: var(--assistant-msg);
+            color: #333;
+            border-bottom-left-radius: 4px;
+        }
+
+        .message-text {
+            line-height: 1.6;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+
+        .message-text a {
+            color: inherit;
+            text-decoration: underline;
+            font-weight: 500;
+        }
+
+        .message.user .message-text a {
+            color: rgba(255,255,255,0.9);
+        }
+
+        .message-text strong {
+            font-weight: 600;
+            color: inherit;
+        }
+
+        .message-text em {
+            font-style: italic;
+        }
+
+        .message-text h1, .message-text h2, .message-text h3 {
+            margin: 12px 0 8px 0;
+            font-weight: 600;
+            color: inherit;
+        }
+
+        .message-text h1 {
+            font-size: 1.5em;
+            border-bottom: 2px solid rgba(0,0,0,0.1);
+            padding-bottom: 4px;
+        }
+
+        .message-text h2 {
+            font-size: 1.3em;
+        }
+
+        .message-text h3 {
+            font-size: 1.1em;
+        }
+
+        .message-text code {
+            background: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+
+        .message.user .message-text code {
+            background: rgba(255,255,255,0.2);
+        }
+
+        .message-time {
+            font-size: 10px;
+            opacity: 0.6;
+            margin-top: 4px;
+        }
+
+        /* OpenStreetMap embedded maps */
+        .osm-map {
+            width: 100%;
+            height: 400px;
+            margin: 12px 0;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            position: relative;
+        }
+
+        /* Fullscreen map styling */
+        .leaflet-container.leaflet-fullscreen-on {
+            width: 100% !important;
+            height: 100% !important;
+        }
+
+        /* Enhanced control buttons */
+        .leaflet-control-easyPrint a,
+        .leaflet-control-fullscreen a {
+            background-color: white !important;
+            border-radius: 4px !important;
+            box-shadow: 0 1px 5px rgba(0,0,0,0.2) !important;
+        }
+
+        .leaflet-control-easyPrint a:hover,
+        .leaflet-control-fullscreen a:hover {
+            background-color: #f4f4f4 !important;
+        }
+
+        /* Permanent labels on map markers */
+        .location-label {
+            background-color: rgba(255, 255, 255, 0.95) !important;
+            border: 2px solid var(--primary) !important;
+            border-radius: 6px !important;
+            padding: 4px 10px !important;
+            font-weight: 600 !important;
+            font-size: 13px !important;
+            color: #333 !important;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2) !important;
+            white-space: nowrap !important;
+        }
+
+        .location-label::before {
+            border-top-color: var(--primary) !important;
+        }
+
+        .reasoning-panel {
+            margin-top: 8px;
+            background: #f8f9fa;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .reasoning-summary {
+            padding: 10px 12px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13px;
+            background: #fff;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .reasoning-summary:hover {
+            background: #f8f9fa;
+        }
+
+        .reasoning-content {
+            padding: 12px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+            display: none;
+        }
+
+        .reasoning-panel.open .reasoning-content {
+            display: block;
+        }
+
+        .thought-item, .agent-call, .agent-response {
+            padding: 8px;
+            margin-bottom: 8px;
+            border-radius: 4px;
+        }
+
+        .thought-item {
+            background: white;
+            border-left: 3px solid var(--primary);
+        }
+
+        .agent-call {
+            background: #e3f2fd;
+            border-left: 3px solid #2196f3;
+        }
+
+        .agent-response {
+            background: #e8f5e9;
+            border-left: 3px solid #4caf50;
+        }
+
+        .copy-btn {
+            margin-top: 8px;
+            padding: 6px 12px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 11px;
+            cursor: pointer;
+        }
+
+        .copy-btn:hover {
+            background: var(--primary-dark);
+        }
+
+        .copy-btn.copied {
+            background: #4caf50;
+        }
+
+        /* Typing indicator */
+        .typing-indicator {
+            display: none;
+            padding: 12px 16px;
+            background: var(--assistant-msg);
+            border-radius: 18px;
+            border-bottom-left-radius: 4px;
+            align-self: flex-start;
+            max-width: 80px;
+        }
+
+        .typing-indicator.active {
+            display: flex;
+            gap: 4px;
+        }
+
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #999;
+            animation: typing 1.4s infinite;
+        }
+
+        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes typing {
+            0%, 60%, 100% { opacity: 0.3; transform: scale(0.8); }
+            30% { opacity: 1; transform: scale(1); }
+        }
+
+        /* Input Area - STICKY BOTTOM */
+        .input-area {
+            position: sticky;
+            bottom: 0;
+            width: 100%;
+            border-top: 1px solid var(--border);
+            background: white;
+            padding: 16px 24px;
+            box-shadow: 0 -2px 8px rgba(0,0,0,0.05);
+            z-index: 10;
+            box-sizing: border-box;
+        }
+
+        .input-container {
+            display: flex;
+            gap: 12px;
+            width: 66.67%;
+            min-width: 320px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        #chat-input {
+            flex: 1;
+            padding: 12px 16px;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            font-size: 14px;
+            font-family: inherit;
+            resize: none;
+            max-height: 120px;
+            transition: border-color 0.3s;
+        }
+
+        #chat-input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        #send-btn {
+            padding: 12px 24px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            min-width: 80px;
+        }
+
+        #send-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        #send-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .input-hint {
+            font-size: 11px;
+            color: #999;
+            margin-top: 8px;
+            text-align: center;
+        }
+
+        /* Empty state */
+        .empty-state {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: #999;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .empty-state-icon {
+            font-size: 64px;
+            margin-bottom: 16px;
+        }
+
+        .empty-state h2 {
+            font-size: 24px;
+            margin-bottom: 8px;
+            color: #666;
+        }
+
+        .empty-state p {
+            font-size: 14px;
+            max-width: 400px;
+        }
+
+        .command-examples {
+            margin-top: 24px;
+            text-align: left;
+            background: #f8f9fa;
+            padding: 16px;
+            border-radius: 8px;
+            font-size: 13px;
+        }
+
+        .command-examples code {
+            background: #e0e0e0;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                display: none;
+            }
+
+            .main-container {
+                width: 100%;
+            }
+
+            .message {
+                max-width: 95%;
+            }
+
+            .message-text {
+                font-size: 14px;
+            }
+
+            .reasoning-content {
+                max-height: 200px;
+                font-size: 11px;
+            }
+
+            header {
+                padding: 12px 16px;
+            }
+
+            .header-title h1 {
+                font-size: 18px;
+            }
+
+            .header-title p {
+                font-size: 11px;
+            }
+
+            .conference-ref {
+                font-size: 10px;
+            }
+
+            .messages-container {
+                padding: 16px 12px;
+            }
+
+            .input-area {
+                padding: 12px 16px;
+            }
+
+            .input-container {
+                width: 95%;
+                min-width: auto;
+            }
+
+            /* Prevent zoom on input focus */
+            #chat-input {
+                font-size: 16px;
+            }
+
+            /* Optimize animations for mobile */
+            .message {
+                animation: none;
+            }
+
+            /* Reduce reasoning panel complexity on mobile */
+            .agent-call, .agent-response {
+                font-size: 11px;
+                padding: 6px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header>
+            <div class="header-content">
+                <div class="header-title">
+                    <h1>🤖 WikidAI - Educational Multi-Agent Chat</h1>
+                    <p>Transparent AI Orchestration with Gemini 2.5 Pro</p>
+                    <div class="conference-ref">
+                        📍 Demo at <a href="https://meta.wikimedia.org/wiki/ItWikiCon/2025" target="_blank">itWikiCon 2025 Catania</a> by voce777 / <a href="https://www.novelli.me" target="_blank">Giovanni Novelli</a>
+                    </div>
+                </div>
+                <button class="new-chat-btn" id="new-chat-btn">+ New Chat</button>
+            </div>
+        </header>
+
+        <!-- Main Layout -->
+        <div class="main-container">
+            <!-- Sidebar -->
+            <div class="sidebar">
+                <div class="sidebar-header">
+                    <h3>Conversations</h3>
+                </div>
+                <div class="conversation-list" id="conversation-list">
+                    <!-- Conversations will be loaded here -->
+                </div>
+            </div>
+
+            <!-- Chat Area -->
+            <div class="chat-container">
+                <div class="messages-container" id="messages-container">
+                    <!-- Empty state -->
+                    <div class="empty-state" id="empty-state">
+                        <div class="empty-state-icon">💬</div>
+                        <h2>Welcome to WikidAI!</h2>
+                        <p>Ask questions about anything. I'll query Wikidata, Wikipedia, and other knowledge sources to give you transparent, well-sourced answers.</p>
+                        <div class="command-examples">
+                            <strong>Try these:</strong><br>
+                            • "What is the population of Tokyo?"<br>
+                            • "Who is the mayor of Berlin?"<br>
+                            • <code>/help</code> - See how I work<br>
+                            • <code>/how</code> - Explain my architecture
+                        </div>
+                    </div>
+
+                    <!-- Typing indicator -->
+                    <div class="typing-indicator" id="typing-indicator">
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                    </div>
+                </div>
+
+                <!-- Input Area - FIXED BOTTOM -->
+                <div class="input-area">
+                    <div class="input-container">
+                        <textarea
+                            id="chat-input"
+                            placeholder="Ask anything... (try /help for commands)"
+                            rows="1"
+                        ></textarea>
+                        <button id="send-btn">Send ➤</button>
+                    </div>
+                    <div class="input-hint">
+                        Press Enter to send • Shift+Enter for new line
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // State
+        const state = {
+            conversations: [],
+            currentConversationId: null,
+            messages: [],
+            loading: false,
+        };
+
+        const API_URL = '/api';
+
+        // Elements
+        const elements = {
+            conversationList: document.getElementById('conversation-list'),
+            messagesContainer: document.getElementById('messages-container'),
+            emptyState: document.getElementById('empty-state'),
+            typingIndicator: document.getElementById('typing-indicator'),
+            chatInput: document.getElementById('chat-input'),
+            sendBtn: document.getElementById('send-btn'),
+            newChatBtn: document.getElementById('new-chat-btn'),
+        };
+
+        // Initialize
+        async function init() {
+            await loadConversations();
+
+            if (state.conversations.length === 0) {
+                await createNewConversation();
+            } else {
+                await loadConversation(state.conversations[0].id);
+            }
+
+            // Event listeners
+            elements.newChatBtn.addEventListener('click', createNewConversation);
+            elements.sendBtn.addEventListener('click', handleSend);
+            elements.chatInput.addEventListener('keydown', handleKeyDown);
+            elements.chatInput.addEventListener('input', autoResize);
+        }
+
+        // Load conversations from API
+        async function loadConversations() {
+            try {
+                const res = await fetch(`${API_URL}/conversations`);
+                const json = await res.json();
+                state.conversations = json.success ? json.data : [];
+                renderConversationList();
+            } catch (error) {
+                console.error('Failed to load conversations:', error);
+            }
+        }
+
+        // Create new conversation
+        async function createNewConversation() {
+            try {
+                const res = await fetch(`${API_URL}/conversations`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ title: 'New Conversation' }),
+                });
+                const json = await res.json();
+
+                if (json.success) {
+                    state.currentConversationId = json.data.id;
+                    state.messages = [];
+                    await loadConversations();
+                    renderMessages([]);
+                    elements.chatInput.focus();
+                }
+            } catch (error) {
+                console.error('Failed to create conversation:', error);
+            }
+        }
+
+        // Load conversation with history
+        async function loadConversation(id) {
+            try {
+                const res = await fetch(`${API_URL}/conversations/${id}`);
+                const json = await res.json();
+
+                if (json.success) {
+                    state.currentConversationId = id;
+                    state.messages = json.data.messages || [];
+                    renderMessages(state.messages);
+                    highlightActiveConversation(id);
+                }
+            } catch (error) {
+                console.error('Failed to load conversation:', error);
+            }
+        }
+
+        // Render conversation list
+        function renderConversationList() {
+            if (state.conversations.length === 0) {
+                elements.conversationList.innerHTML = '<div style="padding:12px;opacity:0.5;font-size:12px;">No conversations yet</div>';
+                return;
+            }
+
+            elements.conversationList.innerHTML = state.conversations.map(conv => `
+                <div class="conversation-item ${conv.id === state.currentConversationId ? 'active' : ''}"
+                     data-id="${conv.id}"
+                     onclick="loadConversation('${conv.id}')">
+                    <div class="conv-title">${escapeHtml(conv.title)}</div>
+                    <div class="conv-meta">${conv.messageCount || 0} messages</div>
+                </div>
+            `).join('');
+        }
+
+        // Render messages
+        function renderMessages(messages) {
+            // Hide empty state if there are messages
+            elements.emptyState.style.display = messages.length === 0 ? 'flex' : 'none';
+
+            // Remove existing messages (keep empty state and typing indicator)
+            const existingMessages = elements.messagesContainer.querySelectorAll('.message');
+            existingMessages.forEach(msg => msg.remove());
+
+            // On mobile, limit to last 20 messages for performance
+            const mobile = isMobile();
+            const messagesToRender = mobile && messages.length > 20
+                ? messages.slice(-20)
+                : messages;
+
+            // Show indicator if messages were truncated
+            if (mobile && messages.length > 20) {
+                const truncateNotice = document.createElement('div');
+                truncateNotice.style.cssText = 'text-align:center;padding:8px;opacity:0.6;font-size:12px;';
+                truncateNotice.textContent = `Showing last 20 of ${messages.length} messages`;
+                elements.messagesContainer.insertBefore(truncateNotice, elements.typingIndicator);
+            }
+
+            // Render messages
+            messagesToRender.forEach((msg, index) => {
+                addMessageToDOM(msg, index === messagesToRender.length - 1);
+            });
+
+            scrollToBottom();
+        }
+
+        // Add message to DOM
+        function addMessageToDOM(msg, isLast = true) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${msg.role}`;
+
+            if (msg.role === 'user') {
+                messageDiv.innerHTML = `
+                    <div class="message-bubble">
+                        <div class="message-text">${linkifyText(msg.content)}</div>
+                        <div class="message-time">${formatTime(msg.timestamp)}</div>
+                    </div>
+                `;
+            } else {
+                const hasReasoning = msg.queryResponse && (msg.queryResponse.thoughts?.length > 0 || msg.queryResponse.agentCalls?.length > 0);
+
+                messageDiv.innerHTML = `
+                    <div class="message-bubble">
+                        ${hasReasoning ? renderReasoning(msg.queryResponse) : ''}
+                        <div class="message-text">${linkifyText(msg.content)}</div>
+                        <div class="message-time">${formatTime(msg.timestamp)}</div>
+                        <button class="copy-btn" onclick="copyText(this, ${JSON.stringify(msg.content).replace(/"/g, '&quot;')})">📋 Copy</button>
+                    </div>
+                `;
+            }
+
+            // Insert before typing indicator
+            elements.messagesContainer.insertBefore(messageDiv, elements.typingIndicator);
+
+            if (isLast) {
+                scrollToBottom();
+            }
+        }
+
+        // Detect mobile device
+        function isMobile() {
+            return window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        }
+
+        // Format SPARQL query for display
+        function formatSparqlQuery(query) {
+            if (!query) return '';
+            // Replace literal \n with actual newlines, then escape HTML, then convert to <br>
+            let formatted = query.replace(/\\n/g, '\n');
+            formatted = escapeHtml(formatted);
+            formatted = formatted.replace(/\n/g, '<br>');
+            return formatted;
+        }
+
+        // Render reasoning panel
+        function renderReasoning(queryResponse) {
+            if (!queryResponse) return '';
+
+            let reasoningHTML = '';
+            const mobile = isMobile();
+            const maxResponseLength = mobile ? 150 : 300;
+
+            if (queryResponse.thoughts?.length > 0) {
+                queryResponse.thoughts.forEach((thought, idx) => {
+                    const truncatedThought = mobile && thought.length > maxResponseLength
+                        ? thought.substring(0, maxResponseLength) + '...'
+                        : thought;
+                    reasoningHTML += `<div class="thought-item"><strong>💭 Thought ${idx + 1}:</strong><br>${escapeHtml(truncatedThought)}</div>`;
+                });
+            }
+
+            if (queryResponse.agentCalls?.length > 0) {
+                queryResponse.agentCalls.forEach((call, idx) => {
+                    const responseStr = String(call.response);
+                    const truncatedResponse = responseStr.substring(0, maxResponseLength) + (responseStr.length > maxResponseLength ? '...' : '');
+
+                    // Format parameters specially for SPARQL queries
+                    let paramsHTML = '';
+                    if (call.agent === 'query_wikidata' && call.params.sparql_query) {
+                        paramsHTML = `<pre style="background:#2d2d2d;color:#f8f8f8;padding:8px;border-radius:4px;overflow-x:auto;font-size:11px;line-height:1.4;">${formatSparqlQuery(call.params.sparql_query)}</pre>`;
+                    } else {
+                        paramsHTML = `<code>${JSON.stringify(call.params)}</code>`;
+                    }
+
+                    reasoningHTML += `
+                        <div class="agent-call"><strong>🔧 Agent Call ${idx + 1}: ${escapeHtml(call.agent)}</strong><br><em>Parameters:</em><br>${paramsHTML}</div>
+                        <div class="agent-response"><strong>✅ Response:</strong><br>${escapeHtml(truncatedResponse)}</div>
+                    `;
+                });
+            }
+
+            return `
+                <div class="reasoning-panel">
+                    <div class="reasoning-summary" onclick="this.parentElement.classList.toggle('open')">
+                        <span>🧠 Show Reasoning Process</span>
+                        <span>▼</span>
+                    </div>
+                    <div class="reasoning-content">
+                        ${reasoningHTML}
+                        <button class="copy-btn" onclick="copyText(this, ${JSON.stringify(reasoningHTML).replace(/"/g, '&quot;')})">📋 Copy Reasoning</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Send message
+        async function handleSend() {
+            const query = elements.chatInput.value.trim();
+            if (!query || state.loading) return;
+
+            // Create conversation if needed
+            if (!state.currentConversationId) {
+                await createNewConversation();
+            }
+
+            // Clear input
+            elements.chatInput.value = '';
+            elements.chatInput.style.height = 'auto';
+
+            // Add user message to UI immediately
+            const userMsg = {
+                role: 'user',
+                content: query,
+                timestamp: new Date(),
+            };
+            addMessageToDOM(userMsg);
+
+            // Hide empty state
+            elements.emptyState.style.display = 'none';
+
+            // Show typing indicator
+            state.loading = true;
+            elements.sendBtn.disabled = true;
+            elements.typingIndicator.classList.add('active');
+            scrollToBottom();
+
+            try {
+                const res = await fetch(`${API_URL}/query`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        query,
+                        conversationId: state.currentConversationId,
+                    }),
+                });
+
+                const json = await res.json();
+
+                // Hide typing
+                elements.typingIndicator.classList.remove('active');
+                state.loading = false;
+                elements.sendBtn.disabled = false;
+
+                if (json.success) {
+                    // Add assistant response
+                    const assistantMsg = {
+                        role: 'assistant',
+                        content: json.data.answer,
+                        timestamp: new Date(),
+                        queryResponse: json.data,
+                    };
+                    addMessageToDOM(assistantMsg);
+
+                    // Update state
+                    state.messages.push(assistantMsg);
+
+                    // Reload conversations list (for title update) without affecting current view
+                    loadConversations();
+
+                    // Re-focus input and ensure it's visible
+                    setTimeout(() => {
+                        elements.chatInput.focus();
+                        elements.chatInput.scrollIntoView({ behavior: 'smooth', block: 'end' });
+                    }, 100);
+                }
+            } catch (error) {
+                console.error('Send error:', error);
+                elements.typingIndicator.classList.remove('active');
+                state.loading = false;
+                elements.sendBtn.disabled = false;
+
+                // Show error message
+                const errorMsg = {
+                    role: 'assistant',
+                    content: `❌ Error: ${error.message}`,
+                    timestamp: new Date(),
+                };
+                addMessageToDOM(errorMsg);
+            }
+        }
+
+        // Handle keyboard
+        function handleKeyDown(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                handleSend();
+            }
+        }
+
+        // Auto-resize textarea
+        function autoResize() {
+            const textarea = elements.chatInput;
+            textarea.style.height = 'auto';
+            textarea.style.height = Math.min(textarea.scrollHeight, 120) + 'px';
+        }
+
+        // Scroll to bottom
+        function scrollToBottom() {
+            setTimeout(() => {
+                window.scrollTo({
+                    top: document.body.scrollHeight,
+                    behavior: 'smooth'
+                });
+            }, 100);
+        }
+
+        // Highlight active conversation
+        function highlightActiveConversation(id) {
+            document.querySelectorAll('.conversation-item').forEach(item => {
+                item.classList.toggle('active', item.dataset.id === id);
+            });
+        }
+
+        // Copy text
+        async function copyText(button, text) {
+            try {
+                await navigator.clipboard.writeText(stripHtml(text));
+                const originalHTML = button.innerHTML;
+                button.innerHTML = '✅ Copied!';
+                button.classList.add('copied');
+                setTimeout(() => {
+                    button.innerHTML = originalHTML;
+                    button.classList.remove('copied');
+                }, 2000);
+            } catch (err) {
+                console.error('Copy failed:', err);
+            }
+        }
+
+        // Utility functions
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function stripHtml(html) {
+            const div = document.createElement('div');
+            div.innerHTML = html;
+            return div.textContent || div.innerText || '';
+        }
+
+        // Generate unique map ID
+        let mapCounter = 0;
+
+        // Render OpenStreetMap for coordinates
+        function renderMapsInText(text) {
+            // Pattern to detect coordinates in various formats:
+            // - lat: 48.8566, lon: 2.3522
+            // - (48.8566, 2.3522)
+            // - 48.8566°N, 2.3522°E
+            const coordPatterns = [
+                /(?:lat(?:itude)?:\s*)([-+]?\d+\.?\d*)[,\s]+(?:lon(?:gitude)?:\s*)([-+]?\d+\.?\d*)/gi,
+                /\(?\s*([-+]?\d+\.?\d*)\s*[,°]\s*([-+]?\d+\.?\d*)\s*\)?/g,
+                /([-+]?\d+\.?\d*)°[NS],?\s*([-+]?\d+\.?\d*)°[EW]/gi
+            ];
+
+            let html = text;
+            let allCoordinates = [];
+            let coordinateTexts = [];
+
+            // First pass: collect all coordinates with context
+            coordPatterns.forEach(pattern => {
+                let match;
+                const regex = new RegExp(pattern.source, pattern.flags);
+                while ((match = regex.exec(text)) !== null) {
+                    const latitude = parseFloat(match[1]);
+                    const longitude = parseFloat(match[2]);
+
+                    // Validate coordinates
+                    if (latitude >= -90 && latitude <= 90 && longitude >= -180 && longitude <= 180) {
+                        // Extract context: look backwards for name (up to 100 chars before coordinates)
+                        const startPos = Math.max(0, match.index - 100);
+                        const contextBefore = text.substring(startPos, match.index);
+
+                        // Try to extract name from patterns like:
+                        // "Vesuvio (lat: ..., lon: ...)"
+                        // "1. Etna - lat: ..., lon: ..."
+                        // "Monte Fuji: lat: ..., lon: ..."
+                        let label = '';
+
+                        // Pattern 1: Name in parentheses or brackets before coords
+                        const nameMatch1 = contextBefore.match(/([A-ZÀ-Ÿ][^\n\r]*?)\s*[\(\[\-:]\s*$/i);
+                        if (nameMatch1) {
+                            label = nameMatch1[1].trim();
+                        } else {
+                            // Pattern 2: List item (number + name)
+                            const nameMatch2 = contextBefore.match(/\d+\.\s*([^\n\r]+?)\s*[\-:]*\s*$/i);
+                            if (nameMatch2) {
+                                label = nameMatch2[1].trim();
+                            } else {
+                                // Pattern 3: Any text on the same line before coords
+                                const nameMatch3 = contextBefore.match(/([^\n\r]+?)\s*$/);
+                                if (nameMatch3) {
+                                    label = nameMatch3[1].trim();
+                                    // Clean up common prefixes
+                                    label = label.replace(/^\d+\.\s*/, '').replace(/^[-•]\s*/, '');
+                                }
+                            }
+                        }
+
+                        // Limit label length
+                        if (label.length > 50) {
+                            label = label.substring(0, 47) + '...';
+                        }
+
+                        // Fallback to position number if no label found
+                        if (!label || label.length < 2) {
+                            label = `Posizione ${allCoordinates.length + 1}`;
+                        }
+
+                        allCoordinates.push({ lat: latitude, lon: longitude, text: match[0], label: label });
+                        coordinateTexts.push(match[0]);
+                    }
+                }
+            });
+
+            // If coordinates found, create ONE map with ALL markers
+            if (allCoordinates.length > 0) {
+                const mapId = `map-${mapCounter++}`;
+
+                // Replace first coordinate occurrence with the map
+                let firstCoordReplaced = false;
+                coordPatterns.forEach(pattern => {
+                    html = html.replace(pattern, (match, lat, lon) => {
+                        const latitude = parseFloat(lat);
+                        const longitude = parseFloat(lon);
+
+                        if (latitude >= -90 && latitude <= 90 && longitude >= -180 && longitude <= 180) {
+                            if (!firstCoordReplaced) {
+                                firstCoordReplaced = true;
+                                return `<div class="osm-map" id="${mapId}"></div>`;
+                            }
+                            // Remove subsequent coordinate texts (they're already on the map)
+                            return '';
+                        }
+                        return match;
+                    });
+                });
+
+                // Initialize ONE map with ALL markers
+                setTimeout(() => {
+                    const mapElement = document.getElementById(mapId);
+                    if (mapElement && !mapElement._leaflet_id) {
+                        // Calculate bounds to fit all markers
+                        const latitudes = allCoordinates.map(c => c.lat);
+                        const longitudes = allCoordinates.map(c => c.lon);
+                        const bounds = [
+                            [Math.min(...latitudes), Math.min(...longitudes)],
+                            [Math.max(...latitudes), Math.max(...longitudes)]
+                        ];
+
+                        const map = L.map(mapId, {
+                            fullscreenControl: true,
+                            fullscreenControlOptions: {
+                                position: 'topleft'
+                            }
+                        });
+
+                        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                            attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+                            maxZoom: 19
+                        }).addTo(map);
+
+                        // Add Print/Export control (PNG download)
+                        L.easyPrint({
+                            title: 'Esporta mappa in PNG',
+                            position: 'topleft',
+                            sizeModes: ['Current', 'A4Portrait', 'A4Landscape'],
+                            filename: 'wikidai-map',
+                            exportOnly: true,
+                            hideControlContainer: true
+                        }).addTo(map);
+
+                        // Add all markers with labels
+                        allCoordinates.forEach((coord, index) => {
+                            L.marker([coord.lat, coord.lon]).addTo(map)
+                                .bindPopup(`<b>${coord.label}</b><br>Coordinate: ${coord.lat.toFixed(4)}, ${coord.lon.toFixed(4)}`)
+                                .bindTooltip(coord.label, {
+                                    permanent: true,
+                                    direction: 'top',
+                                    className: 'location-label',
+                                    offset: [0, -20]
+                                });
+                        });
+
+                        // Fit map to show all markers
+                        if (allCoordinates.length === 1) {
+                            map.setView([allCoordinates[0].lat, allCoordinates[0].lon], 13);
+                        } else {
+                            map.fitBounds(bounds, { padding: [50, 50] });
+                        }
+                    }
+                }, 100);
+            }
+
+            return html;
+        }
+
+        function linkifyText(text) {
+            let html = escapeHtml(text);
+
+            // Headers (must be before other replacements)
+            html = html.replace(/^### (.+)$/gm, '<h3>$1</h3>');
+            html = html.replace(/^## (.+)$/gm, '<h2>$1</h2>');
+            html = html.replace(/^# (.+)$/gm, '<h1>$1</h1>');
+
+            // Bold (** or __)
+            html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+            html = html.replace(/__(.+?)__/g, '<strong>$1</strong>');
+
+            // Italic (* or _)
+            html = html.replace(/\*(.+?)\*/g, '<em>$1</em>');
+            html = html.replace(/_(.+?)_/g, '<em>$1</em>');
+
+            // Inline code (`)
+            html = html.replace(/`(.+?)`/g, '<code style="background:#f4f4f4;padding:2px 6px;border-radius:3px;font-family:monospace;font-size:0.9em;">$1</code>');
+
+            // Links [text](url)
+            html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
+
+            // Plain URLs (avoid double-linking already processed links)
+            html = html.replace(/(?<!href="|">)(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank" rel="noopener">$1</a>');
+
+            // Line breaks (preserve newlines)
+            html = html.replace(/\n/g, '<br>');
+
+            // Render OpenStreetMap for detected coordinates
+            html = renderMapsInText(html);
+
+            return html;
+        }
+
+        function formatTime(timestamp) {
+            const date = new Date(timestamp);
+            return date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+        }
+
+        // Start app
+        init();
+    </script>
+</body>
+</html>
