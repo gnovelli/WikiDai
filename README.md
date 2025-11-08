@@ -177,4 +177,4 @@ See `MVP_plan.md` for the next phase:
 
 ## 📜 License
 
-MIT
+[WikiDai LICENSE](LICENSE)
