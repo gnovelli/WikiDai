@@ -6,7 +6,7 @@
 
 *Educational demonstration of how modern LLMs orchestrate specialized agents to answer complex queries*
 
-[![License: WDL](https://img.shields.io/badge/License-WikidAI_LICENSE-blue.svg)](LICENSE)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?logo=docker&logoColor=white)](docker-compose.yml)
 [![Gemini 2.5 Pro](https://img.shields.io/badge/Gemini-2.5%20Pro-4285F4?logo=google&logoColor=white)](https://ai.google.dev/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
@@ -412,15 +412,11 @@ Special thanks to:
 
 ## 📜 License
 
-This project is licensed under the **WikidAI LICENSE (WDL)** - see the [LICENSE](LICENSE) file for details.
-
-**Key Points:**
-- ✅ Free for personal, educational, and research use
-- ✅ Institutional use allowed with attribution
-- ⚠️ Commercial use requires written authorization
-- 📧 Contact: [giovanni@novelli.me](mailto:giovanni@novelli.me)
+This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
 
 **Copyright © 2025 Giovanni Novelli Ph.D.**
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files, to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software.
 
 ---
 
