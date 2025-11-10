@@ -41,7 +41,7 @@ Get WikidAI running in **under 2 minutes**:
 
 ```bash
 # 1. Clone the repository
-git clone https://github.com/yourusername/wikidai.git
+git clone https://github.com/gnovelli/wikidai.git
 cd wikidai
 
 # 2. Configure your API key
