@@ -250,14 +250,7 @@ wikidai/
 │   └── tsconfig.json
 │
 ├── 🐳 docker-compose.yml       # Full stack orchestration
-├── 📖 README.md                # You are here!
-│
-└── 📚 Documentation/
-    ├── CLAUDE.md               # Full architecture details
-    ├── PoC_plan.md             # Phase 1 (completed)
-    ├── MVP_plan.md             # Phase 2 (next steps)
-    ├── EPR_plan.md             # Phase 3 (production)
-    └── AGILE_ROADMAP.md        # Complete project timeline
+├── 📖 README.md                #    
 ```
 
 ---
