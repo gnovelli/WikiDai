@@ -340,7 +340,6 @@ LOG_LEVEL=debug
 
 ### 🔮 Phase 3: Production (Planned)
 
-See [`EPR_plan.md`](EPR_plan.md) for full details:
 - [ ] Cloud deployment (Google Cloud Run)
 - [ ] Authentication & user management
 - [ ] Query caching & optimization
